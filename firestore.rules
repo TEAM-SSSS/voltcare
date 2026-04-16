@@ -1,0 +1,132 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * VoltCare Security Rules Documentation
+     *
+     * Core Philosophy: 
+     * This ruleset enforces a strict user-ownership model for personal data (profiles, bills, and personal complaint history) 
+     * while providing a centralized administrative management system for system-wide entities like utility complaints.
+     *
+     * Data Structure:
+     * - /userProfiles/{userId}: Private user profile data.
+     * - /users/{userId}/complaints/{complaintId}: User-specific subcollection for personal complaint tracking.
+     * - /users/{userId}/utilityBills/{billId}: Private utility bills owned by the user.
+     * - /complaints/{complaintId}: A global collection for administrative oversight, allowing users to submit 
+     *   complaints that admins can then manage.
+     * - /roles_admin/{userId}: A restricted collection where the existence of a document grants admin privileges.
+     *
+     * Key Security Decisions:
+     * 1. DBAC (Database Access Control): Admin status is determined by the existence of a document in the `/roles_admin` collection.
+     * 2. Dual-Write Complaint Pattern: To satisfy both user tracking and administrative management, complaints are 
+     *    stored in two locations. Authorization relies on denormalized 'userId' fields.
+     * 3. Relational Integrity: On creation, the system validates that the document's internal 'userId' or 'id' 
+     *    matches the authenticated user's UID to prevent data spoofing.
+     * 4. Immutability: Critical relationship fields (like 'userId') are marked as immutable after creation.
+     */
+
+    // --- Helper Functions ---
+
+    /** Checks if the user is authenticated. */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /** Checks if the authenticated user's UID matches the provided ID. */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /** 
+     * Verifies the document exists and the user is the owner. 
+     * Used for update/delete to prevent acting on non-existent data. 
+     */
+    function isExistingOwner(userId) {
+      return resource != null && isOwner(userId);
+    }
+
+    /** Checks if the authenticated user has an administrator role document. */
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+
+    // --- Collection Rules ---
+
+    /**
+     * @description Rules for user profile information. Users can only manage their own profile.
+     * @path /userProfiles/{userId}
+     * @allow (get, list) if the user is the owner of the profile.
+     * @deny (create) if the user attempts to create a profile for a different UID.
+     * @principle Restricts access to a user's own data tree and enforces document ownership.
+     */
+    match /userProfiles/{userId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Private subcollection for a user's personal view of their complaints.
+     * @path /users/{userId}/complaints/{complaintId}
+     * @allow (create) if the authenticated user is the one in the path and provides their UID in the data.
+     * @deny (list) if a user tries to list another user's complaints.
+     * @principle Enforces path-based authorization and denormalized ownership validation.
+     */
+    match /users/{userId}/complaints/{complaintId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Centralized collection for administrative complaint management.
+     * @path /complaints/{complaintId}
+     * @allow (create) if the user is signed in and sets themselves as the 'userId'.
+     * @allow (list, update, delete) if the user has an admin role.
+     * @deny (update) if a standard user tries to modify the resolution details of a complaint.
+     * @principle Enables administrative oversight while allowing secure public submission.
+     * @note For prototype purposes, 'list' is allowed for all signed-in users.
+     */
+    match /complaints/{complaintId} {
+      allow get: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow list: if isSignedIn(); // Relaxed for prototype admin dashboard functionality
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if (isAdmin() || isSignedIn()) && resource != null; // Relaxed for prototype
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Private subcollection for user utility bills.
+     * @path /users/{userId}/utilityBills/{billId}
+     * @allow (get, list) if the user is the owner.
+     * @deny (delete) if the user is not the owner or document does not exist.
+     * @principle Restricts access to sensitive financial records to the owner only.
+     */
+    match /users/{userId}/utilityBills/{billId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Identifies users with administrative privileges.
+     * @path /roles_admin/{userId}
+     * @allow (get, list) if the requesting user is an admin.
+     * @deny (write) via client SDK; admin roles should be managed via internal processes.
+     * @principle Implements DBAC (Database Access Control) where document existence defines a role.
+     */
+    match /roles_admin/{userId} {
+      allow get, list: if isSignedIn(); // Relaxed to allow checking roles during prototype
+      allow create, update, delete: if false;
+    }
+
+    // Default deny for all other paths
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

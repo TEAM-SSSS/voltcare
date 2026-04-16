@@ -1,0 +1,28 @@
+{
+  "placeholderImages": [
+    {
+      "id": "user-avatar",
+      "description": "A placeholder avatar for user profiles.",
+      "imageUrl": "https://images.unsplash.com/photo-1590086782792-42dd2350140d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3Njk3NDY1MTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "complaint-card",
+      "description": "User inspecting a faulty electrical meter while filing a complaint on a smartphone.",
+      "imageUrl": "https://picsum.photos/seed/volt-complaint-v2/600/400",
+      "imageHint": "electrical fault"
+    },
+    {
+      "id": "bills-card",
+      "description": "A close-up of a digital payment confirmation for a utility bill on a mobile device.",
+      "imageUrl": "https://picsum.photos/seed/volt-payment-v2/600/400",
+      "imageHint": "mobile payment"
+    },
+    {
+      "id": "history-card",
+      "description": "A digital log or chart showing electricity usage history and past service requests.",
+      "imageUrl": "https://picsum.photos/seed/volt-history-v2/600/400",
+      "imageHint": "data analytics"
+    }
+  ]
+}

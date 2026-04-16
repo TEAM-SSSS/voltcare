@@ -1,0 +1,296 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user's profile information within the VoltCare application. This entity stores personal details, language preferences, and a link to a profile picture.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the user."
+        },
+        "username": {
+          "type": "string",
+          "description": "A unique username chosen by the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address, used for communication and potentially login.",
+          "format": "email"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The user's phone number, used for communication and potentially login."
+        },
+        "profilePictureUrl": {
+          "type": "string",
+          "description": "URL to the user's profile picture.",
+          "format": "uri"
+        },
+        "preferredLanguage": {
+          "type": "string",
+          "description": "The user's preferred language for the application interface (e.g., English, Hindi, Odia)."
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "username"
+      ]
+    },
+    "Complaint": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Complaint",
+      "type": "object",
+      "description": "Stores details of a user-submitted complaint regarding utility services, including location, problem category, and tracking status.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Complaint entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who submitted the complaint. (Relationship: UserProfile 1:N Complaint)"
+        },
+        "utilityType": {
+          "type": "string",
+          "description": "The type of utility the complaint pertains to (e.g., Electricity, Water)."
+        },
+        "town": {
+          "type": "string",
+          "description": "The town where the complaint originated (e.g., Baripada)."
+        },
+        "wardNumber": {
+          "type": "number",
+          "description": "The specific ward number within the town related to the complaint (e.g., 1 to 31)."
+        },
+        "localityAddress": {
+          "type": "string",
+          "description": "Detailed locality or affected address where the problem occurred."
+        },
+        "problemCategory": {
+          "type": "string",
+          "description": "The specific category of the problem (e.g., Frequent power cuts, Voltage fluctuation, Damaged electric wires, Transformer failure)."
+        },
+        "description": {
+          "type": "string",
+          "description": "An optional detailed description provided by the user about the problem."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the complaint (e.g., Submitted, In Progress, Resolved)."
+        },
+        "submittedAt": {
+          "type": "string",
+          "description": "Timestamp when the complaint was initially submitted.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the complaint's status or details were last updated.",
+          "format": "date-time"
+        },
+        "resolutionDetails": {
+          "type": "string",
+          "description": "Optional details provided by an administrator upon resolution of the complaint."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "utilityType",
+        "town",
+        "wardNumber",
+        "localityAddress",
+        "problemCategory",
+        "status",
+        "submittedAt"
+      ]
+    },
+    "UtilityBill": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UtilityBill",
+      "type": "object",
+      "description": "Records details of a user's utility bill, including billing period, amount, payment status, and links to relevant documents.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UtilityBill entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile to whom the bill belongs. (Relationship: UserProfile 1:N UtilityBill)"
+        },
+        "utilityType": {
+          "type": "string",
+          "description": "The type of utility service (e.g., Electricity, Water)."
+        },
+        "departmentName": {
+          "type": "string",
+          "description": "The name of the utility department (e.g., EHT (O&M) Division, Baripada)."
+        },
+        "consumerAccountNumber": {
+          "type": "string",
+          "description": "The consumer or account number associated with the utility service."
+        },
+        "billingPeriodStart": {
+          "type": "string",
+          "description": "The start date of the billing period for this bill.",
+          "format": "date"
+        },
+        "billingPeriodEnd": {
+          "type": "string",
+          "description": "The end date of the billing period for this bill.",
+          "format": "date"
+        },
+        "billAmount": {
+          "type": "number",
+          "description": "The total amount of the bill."
+        },
+        "paymentStatus": {
+          "type": "string",
+          "description": "The current payment status of the bill (e.g., Paid, Pending, Failed)."
+        },
+        "dueDate": {
+          "type": "string",
+          "description": "The due date for the bill payment.",
+          "format": "date"
+        },
+        "paymentId": {
+          "type": "string",
+          "description": "Optional reference ID from the payment gateway or system for the transaction."
+        },
+        "paidAt": {
+          "type": "string",
+          "description": "Timestamp when the bill was successfully paid.",
+          "format": "date-time"
+        },
+        "billDocumentUrl": {
+          "type": "string",
+          "description": "URL to the detailed bill document (e.g., PDF) for viewing or download.",
+          "format": "uri"
+        },
+        "receiptDocumentUrl": {
+          "type": "string",
+          "description": "URL to the payment receipt document (e.g., PDF) for viewing or download.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "utilityType",
+        "departmentName",
+        "consumerAccountNumber",
+        "billingPeriodStart",
+        "billingPeriodEnd",
+        "billAmount",
+        "paymentStatus",
+        "dueDate"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/userProfiles/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile data. Each document represents a single user's profile and is accessible only by the owning user matching `{userId}`. The document's 'id' field is denormalized to match '{userId}'."
+        }
+      },
+      {
+        "path": "/users/{userId}/complaints/{complaintId}",
+        "definition": {
+          "entityName": "Complaint",
+          "schema": {
+            "$ref": "#/backend/entities/Complaint"
+          },
+          "description": "A subcollection holding complaints submitted by a specific user. Primarily for user-centric access and tracking. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who submitted the complaint."
+            },
+            {
+              "name": "complaintId",
+              "description": "The unique identifier for the complaint."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/complaints/{complaintId}",
+        "definition": {
+          "entityName": "Complaint",
+          "schema": {
+            "$ref": "#/backend/entities/Complaint"
+          },
+          "description": "A top-level collection containing all submitted complaints, primarily for administrative viewing and management. Includes denormalized 'userId' for authorization independence and efficient QAPs for administrators.",
+          "params": [
+            {
+              "name": "complaintId",
+              "description": "The unique identifier for the complaint."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/utilityBills/{billId}",
+        "definition": {
+          "entityName": "UtilityBill",
+          "schema": {
+            "$ref": "#/backend/entities/UtilityBill"
+          },
+          "description": "A subcollection holding utility bill records for a specific user. Accessible only by the owning user matching `{userId}`. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user to whom the bill belongs."
+            },
+            {
+              "name": "billId",
+              "description": "The unique identifier for the utility bill."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "AdminRole",
+          "schema": {
+            "$ref": "#/backend/entities/AdminRole"
+          },
+          "description": "Identifies users who have administrative privileges. Used for DBAC (Database Access Control) where document existence grants a role. The document itself may be empty or contain minimal data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who is an administrator."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The recommended Firestore structure is designed to meet the core principles of Authorization Independence, Structural Segregation, and efficient Queryable Access Patterns (QAPs) for both users and administrators. \n\n**Authorization Independence (CRITICAL):**\n\n1.  **User Profiles (`/userProfiles/{userId}`):** Each user's profile is stored in a top-level collection. Access is strictly controlled by `request.auth.uid` matching the `{userId}` in the path. The UserProfile document itself will also contain an `id` field matching the `userId` for explicit consistency, eliminating any need for `get()` operations to check ownership.\n2.  **User-Owned Subcollections (`/users/{userId}/complaints/{complaintId}` and `/users/{userId}/utilityBills/{billId}`):** For data strongly owned by a user (complaints they filed, bills they need to pay), we utilize subcollections under a user-specific path. The `{userId}` in the path directly corresponds to `request.auth.uid`, making authorization rules atomic and independent of parent documents. Both `Complaint` and `UtilityBill` documents will also contain a `userId` field, denormalizing ownership directly into the document. This is critical for robust atomic operations and simplified rule logic.\n3.  **Global Complaints for Admin (`/complaints/{complaintId}`):** To address the requirement for administrators to manage *all* complaints, a top-level `complaints` collection is created. Each complaint document in this collection will also contain the `userId` of the submitter, as well as `status`, `submittedAt`, etc. This denormalization means that an admin rule checking for administrative privileges (via `/roles_admin/{userId}`) does not need to perform a `get()` call to the user's subcollection or `UserProfile` to view complaint details. All necessary authorization and context (like the submitter's ID) are present directly within the `Complaint` document.\n4.  **Admin Roles (`/roles_admin/{userId}`):** Admin roles are established using the DBAC (Database Access Control) pattern. The mere existence of a document at `/roles_admin/{request.auth.uid}` grants administrative privileges, making authorization checks extremely simple and independent of any other data. Rules can directly check `get(/roles_admin/$(request.auth.uid)).exists()`.\n\n**Queryable Access Patterns (QAPs):**\n\n1.  **User-Specific Lists:** For users, listing their complaints (`/users/{request.auth.uid}/complaints`) or bills (`/users/{request.auth.uid}/utilityBills`) naturally adheres to QAPs. The `list` operation is restricted by the path, and rules ensure that `request.auth.uid` matches the path's `userId`. This prevents broad, unfiltered queries that could lead to security vulnerabilities.\n2.  **Admin-Specific Lists:** For administrators, the `/complaints` collection allows them to `list` all complaints efficiently. The security rule for this collection would grant `list` access if the `request.auth.uid` is identified as an admin (e.g., `get(/roles_admin/$(request.auth.uid)).exists()`). Because the rule directly grants permission to list *all* documents in this collection for an admin, it fully supports QAPs without requiring filters in the security rules themselves.\n\n**Denormalization Justification:** The key denormalization strategy is applied to the `Complaint` entity. A complaint filed by a user will be written to two locations: \n    a.  `/users/{userId}/complaints/{complaintId}`: This ensures strong ownership for the user, simplifying user-facing rules and reads.\n    b.  `/complaints/{complaintId}`: This global collection allows administrators to efficiently query and manage *all* complaints from a single location without needing to fan out queries across all user subcollections. The `userId` field within each `Complaint` document in this global collection allows for comprehensive display and context, enabling rules to function without cross-collection `get()` operations.\n\nThis structure prioritizes secure, scalable, and debuggable rules by making authorization context explicit, segregating data by its security posture, and ensuring that `list` operations are always secure and performant."
+  }
+}
